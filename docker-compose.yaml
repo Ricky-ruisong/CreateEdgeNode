@@ -1,0 +1,31 @@
+version: "3"
+
+services:
+  emqx:
+    image: emqx/emqx-edge:v3.1.1-${ARCH}
+    restart: always
+    user: root
+    network_mode: "host"
+
+  edgecore:
+    image: ${EDGECOREIMAGE}
+    depends_on:
+      - emqx
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/kubeedge:/etc/kubeedge
+      - /var/lib/kubeedge:/var/lib/kubeedge
+      - /var/lib/docker:/var/lib/docker
+      - /var/lib/edged:/var/lib/edged
+      - /var/run:/var/run
+    privileged: true
+    network_mode: "host"
+    restart: always
+
+  onvif:
+    environment:
+      EdgeNode: ${EDGENAME}
+      MqttHost: "127.0.0.1"
+    image: ${ONVIFIMAGE}
+    restart: always
+    network_mode: "host"
